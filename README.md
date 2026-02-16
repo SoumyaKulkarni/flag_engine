@@ -88,4 +88,32 @@ Make sure you have installed:
 - SQLite3
 
 
+## Setup
+
+Clone the repository:
+
+git clone https://github.com/SoumyaKulkarni/flag_engine.git
+cd flag_engine
+
+Install dependencies:
+
+bundle install
+
+Setup database:
+
+rails db:create
+rails db:migrate
+rails db:seed
+
+## Run Tests
+
+bundle exec rspec
+
+## Run the Application
+
+rails s
+
+Server runs at http://localhost:3000
+
+
 
