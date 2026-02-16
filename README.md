@@ -76,6 +76,8 @@ Example:
   }
 }
 
+```
+
 ## Running the Application Locally
 
 ### Prerequisites
