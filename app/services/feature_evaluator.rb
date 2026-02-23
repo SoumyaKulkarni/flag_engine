@@ -23,4 +23,20 @@ class FeatureEvaluator
 
     feature.enabled
   end
+
+  def self.enabled_for_feature(feature, user_id: nil, group_id: nil)
+    overrides = feature.overrides
+
+    if user_id
+      user_override = overrides.find { |o| o.override_type == "user" && o.override_id == user_id }
+      return user_override.enabled unless user_override.nil?
+    end
+
+    if group_id
+      group_override = overrides.find { |o| o.override_type == "group" && o.override_id == group_id }
+      return group_override.enabled unless group_override.nil?
+    end
+
+    feature.enabled
+  end
 end

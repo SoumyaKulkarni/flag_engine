@@ -90,6 +90,35 @@ class FeatureFlagsController < ApplicationController
     render json: { error: e.message }, status: :not_found
   end
 
+  def evaluate_batch
+    feature_names = params[:feature_names]
+
+    return render json: { error: "feature_names parameter is required" },
+                  status: :bad_request if feature_names.blank?
+
+    features = FeatureFlag
+                 .includes(:overrides)
+                 .where(name: feature_names)
+                 .index_by(&:name)
+
+    results = feature_names.each_with_object({}) do |name, hash|
+      feature = features[name]
+
+      if feature.nil?
+        hash[name] = "not_found"
+        next
+      end
+
+      hash[name] = FeatureEvaluator.enabled_for_feature(
+        feature,
+        user_id: params[:user_id],
+        group_id: params[:group_id]
+      )
+    end
+
+    render json: { results: results }
+  end
+
   private
 
   def feature_params
