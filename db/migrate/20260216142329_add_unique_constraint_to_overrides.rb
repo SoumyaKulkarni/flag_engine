@@ -1,4 +1,4 @@
-class AddUniqueConstraintToOverrides < ActiveRecord::Migration[7.0]
+class AddUniqueConstraintToOverrides < ActiveRecord::Migration[7.1]
   def change
     add_index :overrides,
               [:feature_flag_id, :override_type, :override_id],
