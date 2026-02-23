@@ -1,6 +1,26 @@
 class FeatureFlagsController < ApplicationController
   def index
-    render json: FeatureFlag.all
+    page     = params.fetch(:page, 1).to_i
+    per_page = params.fetch(:per_page, 10).to_i
+
+    page = 1 if page < 1
+    per_page = 10 if per_page <= 0
+
+    total_count = FeatureFlag.count
+
+    flags = FeatureFlag
+              .limit(per_page)
+              .offset((page - 1) * per_page)
+
+    render json: {
+      data: flags,
+      meta: {
+        page: page,
+        per_page: per_page,
+        total_count: total_count,
+        total_pages: (total_count / per_page.to_f).ceil
+      }
+    }
   end
 
   def show

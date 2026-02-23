@@ -3,13 +3,15 @@ require "rails_helper"
 RSpec.describe "FeatureFlags API", type: :request do
 
   describe "GET /feature_flags" do
-    it "returns all feature flags" do
+    it "returns paginated feature flags" do
       FeatureFlag.create!(name: "flag_1", enabled: true)
 
       get "/feature_flags"
 
+      json = JSON.parse(response.body)
+
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body).length).to eq(1)
+      expect(json["data"].length).to eq(1)
     end
   end
 
