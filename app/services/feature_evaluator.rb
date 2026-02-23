@@ -1,7 +1,9 @@
 class FeatureEvaluator
   def self.enabled?(feature_name:, user_id: nil, group_id: nil)
-    feature = FeatureFlag.includes(:overrides).find_by(name: feature_name)
-    raise ActiveRecord::RecordNotFound, "Feature not found" unless feature
+
+    feature = Rails.cache.fetch("feature_flag:#{feature_name}", expires_in: 5.minutes) do
+      FeatureFlag.includes(:overrides).find_by!(name: feature_name)
+    end
 
     overrides = feature.overrides
 
