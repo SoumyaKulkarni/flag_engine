@@ -5,36 +5,20 @@ class FeatureEvaluator
       FeatureFlag.includes(:overrides).find_by!(name: feature_name)
     end
 
-    overrides = feature.overrides
-
-    if user_id
-      user_override = overrides.find do |o|
-        o.override_type == "user" && o.override_id == user_id
-      end
-      return user_override.enabled unless user_override.nil?
-    end
-
-    if group_id
-      group_override = overrides.find do |o|
-        o.override_type == "group" && o.override_id == group_id
-      end
-      return group_override.enabled unless group_override.nil?
-    end
-
-    feature.enabled
+    enabled_for_feature(feature, user_id: user_id, group_id: group_id)
   end
 
   def self.enabled_for_feature(feature, user_id: nil, group_id: nil)
-    overrides = feature.overrides
+    overrides_by_type = feature.overrides.group_by(&:override_type)
 
     if user_id
-      user_override = overrides.find { |o| o.override_type == "user" && o.override_id == user_id }
-      return user_override.enabled unless user_override.nil?
+      user_override = overrides_by_type["user"]&.find { |o| o.override_id == user_id }
+      return user_override.enabled if user_override
     end
 
     if group_id
-      group_override = overrides.find { |o| o.override_type == "group" && o.override_id == group_id }
-      return group_override.enabled unless group_override.nil?
+      group_override = overrides_by_type["group"]&.find { |o| o.override_id == group_id }
+      return group_override.enabled if group_override
     end
 
     feature.enabled
