@@ -4,10 +4,10 @@ class FeatureFlagsController < ApplicationController
   end
 
   def show
-    feature = FeatureFlag.find_by(name: params[:id])
-    return render_not_found unless feature
-
-    render json: feature
+    flag = FeatureFlag.find(params[:id])
+    render json: flag
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Feature flag not found" }, status: :not_found
   end
 
   def create
@@ -18,17 +18,23 @@ class FeatureFlagsController < ApplicationController
     else
       render json: { errors: feature.errors.full_messages }, status: :unprocessable_entity
     end
+
+  rescue ActiveRecord::RecordNotUnique
+    render json: { error: "Feature flag with this name already exists" },
+           status: :unprocessable_entity
   end
 
   def update
-    feature = FeatureFlag.find_by(name: params[:id])
-    return render_not_found unless feature
+    flag = FeatureFlag.find(params[:id])
 
-    if feature.update(feature_params)
-      render json: feature
+    if flag.update(feature_flag_params)
+      render json: flag
     else
-      render json: { errors: feature.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: flag.errors.full_messages }, status: :unprocessable_entity
     end
+
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Feature flag not found" }, status: :not_found
   end
 
   def evaluate
