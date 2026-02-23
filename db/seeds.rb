@@ -8,13 +8,11 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-FeatureFlag.create!(
-  name: "new_dashboard",
-  enabled: true,
-  description: "Controls new dashboard rollout"
-)
+FeatureFlag.find_or_create_by!(name: "new_dashboard") do |flag|
+  flag.enabled = true
+  flag.description = "Controls new dashboard rollout"
+end
 
-FeatureFlag.create!(
-  name: "beta_checkout",
-  enabled: false
-)
+FeatureFlag.find_or_create_by!(name: "beta_checkout") do |flag|
+  flag.enabled = false
+end
