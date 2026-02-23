@@ -27,7 +27,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_16_142329) do
     t.boolean "enabled"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["feature_flag_id", "override_type", "override_id"], name: "idx_override_lookup"
     t.index ["feature_flag_id", "override_type", "override_id"], name: "uniq_override_per_scope", unique: true
     t.index ["feature_flag_id"], name: "index_overrides_on_feature_flag_id"
   end
