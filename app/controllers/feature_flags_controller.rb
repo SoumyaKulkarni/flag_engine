@@ -36,13 +36,17 @@ class FeatureFlagsController < ApplicationController
     if feature.save
       render json: feature, status: :created
     else
-      render json: { errors: feature.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: feature.errors.full_messages },
+             status: :unprocessable_entity
     end
 
   rescue ActiveRecord::RecordNotUnique
-    render json: { error: "Feature flag with this name already exists" },
-           status: :unprocessable_entity
+    render json: {
+      error: "Duplicate feature flag",
+      details: "Feature flag name must be unique"
+    }, status: :unprocessable_entity
   end
+
 
   def update
     flag = FeatureFlag.find(params[:id])
@@ -50,11 +54,28 @@ class FeatureFlagsController < ApplicationController
     if flag.update(feature_flag_params)
       render json: flag
     else
-      render json: { errors: flag.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: flag.errors.full_messages },
+             status: :unprocessable_entity
     end
 
   rescue ActiveRecord::RecordNotFound
-    render json: { error: "Feature flag not found" }, status: :not_found
+    render json: { error: "Feature flag not found" },
+           status: :not_found
+
+  rescue ActiveRecord::RecordNotUnique
+    render json: {
+      error: "Duplicate feature flag name"
+    }, status: :unprocessable_entity
+  end
+
+  def destroy
+    flag = FeatureFlag.find(params[:id])
+    flag.destroy
+    head :no_content
+
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Feature flag not found" },
+           status: :not_found
   end
 
   def evaluate

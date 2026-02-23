@@ -1,16 +1,26 @@
 class OverridesController < ApplicationController
 
   def create
-    feature = FeatureFlag.find_by(name: params[:feature_name])
-    return render_not_found unless feature
+    feature = FeatureFlag.find_by!(name: params[:feature_name])
 
     override = feature.overrides.new(override_params)
 
     if override.save
       render json: override, status: :created
     else
-      render json: { errors: override.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: override.errors.full_messages },
+             status: :unprocessable_entity
     end
+
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Feature flag not found" },
+           status: :not_found
+
+  rescue ActiveRecord::RecordNotUnique
+    render json: {
+      error: "Duplicate override",
+      details: "Override already exists for this scope"
+    }, status: :unprocessable_entity
   end
 
   def update
